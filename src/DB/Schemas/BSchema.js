@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const BSchema = mongoose.Schema({
     userId : {
         type: mongoose.Types.ObjectId,
+        ref: "USER",
         required : true
     },
     active : {
@@ -10,9 +11,14 @@ const BSchema = mongoose.Schema({
         required: true,
         default : false,
     },
-    code : {
-        type: Number,
+    name : {
+        type: String,
         required: true
+    },
+    buildType: {
+        type: String,
+        required: true,
+        default: "Utility"
     },
     posX : {
         type: Number,

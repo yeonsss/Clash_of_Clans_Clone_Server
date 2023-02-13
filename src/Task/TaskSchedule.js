@@ -1,5 +1,6 @@
-import { TaskModel, UserModel } from "../DB";
+import { ArmyModel, TaskModel, UserModel } from "../DB";
 import schedule from "node-schedule";
+import MonsterInfo from "../Data/MonsterInfo";
 
 export default async function() {
     schedule.scheduleJob("*/1 * * * * *", async function () {
@@ -15,20 +16,29 @@ const updateTaskDone = async() => {
     const date = new Date();
     tasks.forEach( async (element) => {
         if (element.doneTime.getTime() <= date.getTime()) {
-            await TaskModel.updateOne({
+            await TaskModel.deleteOne({
                 _id : element._id
-            }, {
-                isStart : false,
-                done: true
-            })
+            });
 
-            await UserModel.updateOne({
-                _id : element.userId
-            }, {
-                $inc: {
-                    [`army.${element.code}`]: 1,
-                }
-            })
+            if (element.type == "Monster") {
+
+                await ArmyModel.updateOne({
+                    userId : element.userId
+                }, {
+                    $inc: {
+                        [`monsterCountMap.${element.name}`]: 1,
+                    }
+                })
+            }
+            else if (element.type == "Magic") {
+                await ArmyModel.updateOne({
+                    _id : element.userId
+                }, {
+                    $inc: {
+                        [`magicCountMap.${element.name}`]: 1,
+                    }
+                })
+            }
         }
     })
 }

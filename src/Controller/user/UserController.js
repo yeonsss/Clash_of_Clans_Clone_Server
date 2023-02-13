@@ -1,13 +1,14 @@
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from 'uuid';
-import { BModel, UserModel } from "../../DB";
+import MonsterInfo from "../../Data/MonsterInfo";
+import { ArmyModel, BModel, UserModel } from "../../DB";
 
 class UserController {
 
     static Login = async (id, password) => {
         try {
             const result = await UserModel.findOne({
-                id : id
+                id: id
             });
             const correctPasswordHash = result?.password
 
@@ -23,15 +24,15 @@ class UserController {
             return {
                 state: true,
                 message: "Login Success",
-                userId : result._id
-            }        
+                userId: result._id
+            }
         }
-        catch(e) {
+        catch (e) {
             console.log(e.stack)
             return {
                 state: false,
                 message: e.message
-            }  
+            }
         }
     }
 
@@ -39,41 +40,50 @@ class UserController {
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            const armyMap = {
-                1: 0,
-                2: 0
-            }
-
-            const buildMap = {
-                1: 0,
-                2: 0,
-                3: 0,
-                4: 1
-            }
-
-            // armyMap[3] = 0;
-
             const result = await UserModel.create({
-                id : id,
+                id: id,
                 password: hashedPassword,
-                userName : userName == "" || userName == null ? uuidv4() : userName,
-                army: armyMap,
-                build: buildMap
+                userName: userName == "" || userName == null ? uuidv4() : userName,
             });
 
             await BModel.create({
                 userId: result._id,
-                code: 4,
-                lv: 1,
+                name: "Hall",
                 active: true,
             });
+
+            const monsterList = Object.keys(MonsterInfo);
+            const monsterCountMap = {};
+            const monsterLevelMap = {};
+            const magicCountMap = {};
+            const magicLevelMap = {};
+            const selectMonsterMap = {};
+            const selectMagicMap = {};
+
+            monsterList.forEach((element) => {
+                monsterCountMap[`${element}`] = 0;
+                monsterLevelMap[`${element}`] = 1;
+                selectMonsterMap[`${element}`] = 0;
+            });
+
+            await ArmyModel.create({
+                userId: result._id,
+                magicCountMap: magicCountMap,
+                magicLevelMap: magicLevelMap,
+                monsterCountMap: monsterCountMap,
+                monsterLevelMap: monsterLevelMap,
+                magicProdMaxCount: 10,
+                monsterProdMaxCount: 80,
+                selectMonsterMap: selectMonsterMap,
+                selectMagicMap: selectMagicMap
+            })
 
             return {
                 state: true,
                 message: "Register Success"
             };
         }
-        catch(e) {
+        catch (e) {
             console.log(e.stack)
             return {
                 state: false,
@@ -90,25 +100,25 @@ class UserController {
             }
 
             const result = [];
-            for(const u of userList) {
+            for (const u of userList) {
                 result.push({
-                    UserName : u.userName,
+                    UserName: u.userName,
                     UserId: u._id,
-                    TierPoint : u.tierPoint,
+                    TierPoint: u.tierPoint,
                 })
             }
 
             return {
-                state : true,
-                message : "find userlist",
-                data : result
+                state: true,
+                message: "find userlist",
+                data: result
             }
         }
-        catch(e) {
+        catch (e) {
             return {
-                state : false,
-                message : e.message,
-                data : null
+                state: false,
+                message: e.message,
+                data: null
             }
         }
     }
@@ -116,46 +126,18 @@ class UserController {
     static UpdateUser = async (userId, data) => {
         try {
             await UserModel.updateOne({
-                _id : userId
+                _id: userId
             }, data);
 
             return {
-                state : true,
-                message : "user update success"
-            }
-        }
-        catch(e) {
-            return {
-                state : false,
-                message : e.message
-            }
-        }
-    }
-
-    static UpdateArmy = async (userId, {Code, Count}) => {
-        try {
-            //TODO: 총 용량도 계산.
-            const result = await UserModel.updateOne({
-                _id : userId
-            }, {
-                $inc: {
-                    [`army.${Code}`]: Count,
-                }
-            });
-
-            if (result == null) {
-                throw new Error("update fail")
-            }
-
-            return {
                 state: true,
-                message: "my data update Success",
+                message: "user update success"
             }
         }
-        catch(e) {
+        catch (e) {
             return {
                 state: false,
-                message: e.message,
+                message: e.message
             }
         }
     }
@@ -163,7 +145,7 @@ class UserController {
     static FindUser = async (_id) => {
         try {
             const result = await UserModel.findOne({
-                _id : _id
+                _id: _id
             });
             if (result == null) {
                 throw new Error("user not found")
@@ -172,10 +154,10 @@ class UserController {
             return {
                 state: true,
                 message: "find Success",
-                data : result
+                data: result
             };
         }
-        catch(e) {
+        catch (e) {
             return {
                 state: false,
                 message: e.message,
@@ -187,7 +169,7 @@ class UserController {
     static FindUserById = async (userId) => {
         try {
             const result = await UserModel.findOne({
-                userId : userId
+                userId: userId
             });
             if (result == null) {
                 throw new Error("user not found")
@@ -196,10 +178,10 @@ class UserController {
             return {
                 state: true,
                 message: "find Success",
-                data : result
+                data: result
             };
         }
-        catch(e) {
+        catch (e) {
             return {
                 state: false,
                 message: e.message,
@@ -211,7 +193,7 @@ class UserController {
     static GetMyData = async (userId) => {
         try {
             const result = await UserModel.findOne({
-                _id : userId
+                _id: userId
             })
 
             if (result == null) {
@@ -219,47 +201,53 @@ class UserController {
             }
 
             const myBuild = await BModel.find({
-                userId : userId
+                userId: userId
             }).lean()
 
-            const date = Date.now();    
+            const date = Date.now();
 
+            const buildMap = {};
             const buildList = [];
 
-            for(const b of myBuild) {
+            for (const b of myBuild) {
+                if (b.name in buildMap == false) {
+                    buildMap[b.name] = 1
+                }
+                else {
+                    buildMap[b.name] += 1
+                }
+
                 if (b.active == false) {
                     const diff = b.doneTime.getTime() - date;
                     if (diff < 0) {
-                        buildList.push({...b, stored: parseInt(b.stored), remainingTime: 0, active: true});
+                        buildList.push({ ...b, stored: parseInt(b.stored), remainingTime: 0, active: true });
                     }
                     else {
-                        buildList.push({...b, stored: parseInt(b.stored), remainingTime : Math.floor(diff / 1000)})
+                        buildList.push({ ...b, stored: parseInt(b.stored), remainingTime: Math.floor(diff / 1000) })
                     }
                 }
                 else {
-                    buildList.push({...b, stored: parseInt(b.stored), remainingTime: 0})
+                    buildList.push({ ...b, stored: parseInt(b.stored), remainingTime: 0 })
                 }
             }
 
             const responseData = {
-                Name: result.userName,
-                Credit: result.credit,
-                TierPoint: result.TierPoint,
-                Lv: result.lv,
-                HallLv: result.hallLv,
-                ArmyCapacity: result.armyCapacity,
-                Army: result.army,
-                Build: result.build,
-                BuildList: buildList
+                name: result.userName,
+                credit: result.credit,
+                tierPoint: result.tierPoint,
+                lv: result.lv,
+                hallLv: result.hallLv,
+                buildMap: buildMap,
+                buildList: buildList
             }
 
             return {
                 state: true,
                 message: "find Success",
-                data : responseData
+                data: responseData
             };
         }
-        catch(e) {
+        catch (e) {
             return {
                 state: false,
                 message: e.message,

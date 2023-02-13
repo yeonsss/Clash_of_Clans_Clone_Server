@@ -13,25 +13,25 @@ BRouter.get("/build/complete/:id", verifySession, async (req, res, next) => {
         }
 
         res.status(200).send({
-            State: true,
-            Message: result.message,
-            Done: result.active
+            state: true,
+            message: result.message,
+            done: result.active
         });
-    } catch(e) {
+    } catch (e) {
         next(e);
     }
 })
 
-BRouter.get("/build/upgrade/:id", verifySession, async(req, res, next) => {
+BRouter.get("/build/upgrade/:id", verifySession, async (req, res, next) => {
     try {
-        const {id} = req.params;
+        const { id } = req.params;
         if (id == null || id == undefined) {
             throw new Error("check build id");
         }
 
         const result = await BController.Upgrade({
-            UserId: req.session.userId,
-            BuildId: id
+            userId: req.session.userId,
+            buildId: id
         })
 
         if (result.state == false) {
@@ -39,16 +39,16 @@ BRouter.get("/build/upgrade/:id", verifySession, async(req, res, next) => {
         }
 
         res.status(200).send({
-            State: result.state,
-            Message: result.message
+            state: result.state,
+            message: result.message
         })
 
-    } catch(e) {
+    } catch (e) {
         next(e);
     }
 })
 
-BRouter.get("/build/resource", verifySession, async(req, res, next) => {
+BRouter.get("/build/resource", verifySession, async (req, res, next) => {
     try {
         const result = await BController.GetResource(req.session.userId);
 
@@ -57,29 +57,29 @@ BRouter.get("/build/resource", verifySession, async(req, res, next) => {
         }
 
         res.status(200).send({
-            State: result.state,
-            Message: result.message,
-            Credit: result.credit
+            state: result.state,
+            message: result.message,
+            credit: result.credit
         })
 
-    } catch(e) {
+    } catch (e) {
         next(e);
     }
 })
 
 BRouter.post("/build/position", verifySession, async (req, res, next) => {
     try {
-        const { BuildId, PosX, PosY } = req.body;
+        const { buildId, posX, posY } = req.body;
 
-        if (BuildId == null || BuildId == undefined ||
-            PosX == null || PosX == undefined ||
-            PosY == null || PosY == undefined
-            ) {
+        if (buildId == null || buildId == undefined ||
+            posX == null || posX == undefined ||
+            posY == null || posY == undefined
+        ) {
             throw new Error("change build pos fail");
         }
 
         const result = await BController.MovePos({
-            UserId: req.session.userId, BuildId, PosX, PosY
+            userId: req.session.userId, buildId, posX, posY
         })
 
         if (result.state == false) {
@@ -87,11 +87,11 @@ BRouter.post("/build/position", verifySession, async (req, res, next) => {
         }
 
         res.status(200).send({
-            State: true,
-            Message: result.message
+            state: true,
+            message: result.message
         })
 
-    } catch(e) {
+    } catch (e) {
         next(e);
     }
 })
@@ -106,35 +106,33 @@ BRouter.get("/build/:id", verifySession, async (req, res, next) => {
         }
 
         res.status(200).send({
-            State: true,
-            Message: result.message,
-            Stored: result.stored,
-            Max: result.max,
+            state: true,
+            message: result.message,
+            stored: result.stored,
+            max: result.max,
             isFull: result.isFull
         })
     }
-    catch(e) {
+    catch (e) {
         next(e);
     }
-    
+
 })
 
 BRouter.post("/build", verifySession, async (req, res, next) => {
     try {
-        const { Code, PosX, PosY, ClientTime } = req.body;
+        const { name, posX, posY, clientTime } = req.body;
 
-        // if (Code == null || Code == undefined ||
-        //     PosX == null || PosX == undefined ||
-        //     PosY == null || PosY == undefined ||
-        //     ClientTime == null || ClientTime == undefined
-        //     ) {
-        //     throw new Error("create build fail");
-        // }
-
-        const date = new Date();
+        if (name == null || name == undefined ||
+            posX == null || posX == undefined ||
+            posY == null || posY == undefined ||
+            clientTime == null || clientTime == undefined
+        ) {
+            throw new Error("create build fail");
+        }
 
         const result = await BController.Create({
-            UserId: req.session.userId, Code, PosX, PosY, ClientTime: date
+            userId: req.session.userId, name, posX, posY, clientTime: clientTime
         })
 
         if (result.state == false) {
@@ -142,12 +140,12 @@ BRouter.post("/build", verifySession, async (req, res, next) => {
         }
 
         res.status(200).send({
-            State: true,
-            Message: result.message,
-            BuildId: result.buildId
+            state: true,
+            message: result.message,
+            buildId: result.buildId
         })
 
-    } catch(e) {
+    } catch (e) {
         next(e);
     }
 })

@@ -1,5 +1,6 @@
 import { BModel } from "../DB";
 import schedule from "node-schedule";
+import BuildingInfo from "../Data/BuildingInfo";
 
 export default async function() {
 
@@ -9,27 +10,24 @@ export default async function() {
     
 }
 
-const updateStored = async (code) => {
-    // TODO: 데이터 가져와서 체크
-    const lvUpper = {
-        1 : 200,
-        2 : 400,
-        3 : 600,
-    }
-    
+const updateStored = async () => {
     const Bs = await BModel.find({
-        code : code
+        buildType : "Resource"
     });
     
     Bs.forEach(async (element) => {
-        await BModel.updateOne({
-            _id : element._id,
-            active : true
-        }, {
-            $inc: {
-                stored : (lvUpper[element.lv] / 3600)
-            }
-        })
+        const maxStore = BuildingInfo[element.name].Levels[element.lv - 1].StorageCapacity;
+
+        if (maxStore > element.stored) {
+            await BModel.updateOne({
+                _id : element._id,
+                active : true
+            }, {
+                $inc: {
+                    stored : (maxStore / 3600)
+                }
+            })
+        }
     });
 };
 

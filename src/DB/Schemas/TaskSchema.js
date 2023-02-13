@@ -6,8 +6,17 @@ const TaskSchema = mongoose.Schema({
         ref: "USER",
         required : true
     },
-    code: {
+    type : {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    remainingTime: {
         type: Number,
+        default: 0,
         required: true
     },
     isStart : {
@@ -25,6 +34,8 @@ const TaskSchema = mongoose.Schema({
         default: false,
         required: true
     }
+}, { 
+    timestamps: true 
 })
 
 const TaskModel = mongoose.model("TASK", TaskSchema);
