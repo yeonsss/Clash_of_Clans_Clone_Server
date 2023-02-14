@@ -8,7 +8,7 @@ class UserController {
     static Login = async (id, password) => {
         try {
             const result = await UserModel.findOne({
-                id : id
+                id: id
             });
             const correctPasswordHash = result?.password
 
@@ -24,15 +24,15 @@ class UserController {
             return {
                 state: true,
                 message: "Login Success",
-                userId : result._id
-            }        
+                userId: result._id
+            }
         }
-        catch(e) {
+        catch (e) {
             console.log(e.stack)
             return {
                 state: false,
                 message: e.message
-            }  
+            }
         }
     }
 
@@ -41,9 +41,13 @@ class UserController {
             const hashedPassword = await bcrypt.hash(password, 10);
 
             const result = await UserModel.create({
-                id : id,
+                id: id,
                 password: hashedPassword,
+<<<<<<< HEAD
                 userName : userName == "" || userName == null ? uuidv4() : userName,
+=======
+                userName: userName == "" || userName == null ? uuidv4() : userName,
+>>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
             });
 
             await BModel.create({
@@ -74,8 +78,13 @@ class UserController {
                 monsterLevelMap: monsterLevelMap,
                 magicProdMaxCount: 10,
                 monsterProdMaxCount: 80,
+<<<<<<< HEAD
                 selectMonsterMap : selectMonsterMap,
                 selectMagicMap : selectMagicMap
+=======
+                selectMonsterMap: selectMonsterMap,
+                selectMagicMap: selectMagicMap
+>>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
             })
 
             return {
@@ -83,7 +92,7 @@ class UserController {
                 message: "Register Success"
             };
         }
-        catch(e) {
+        catch (e) {
             console.log(e.stack)
             return {
                 state: false,
@@ -100,25 +109,25 @@ class UserController {
             }
 
             const result = [];
-            for(const u of userList) {
+            for (const u of userList) {
                 result.push({
-                    UserName : u.userName,
+                    UserName: u.userName,
                     UserId: u._id,
-                    TierPoint : u.tierPoint,
+                    TierPoint: u.tierPoint,
                 })
             }
 
             return {
-                state : true,
-                message : "find userlist",
-                data : result
+                state: true,
+                message: "find userlist",
+                data: result
             }
         }
-        catch(e) {
+        catch (e) {
             return {
-                state : false,
-                message : e.message,
-                data : null
+                state: false,
+                message: e.message,
+                data: null
             }
         }
     }
@@ -126,10 +135,11 @@ class UserController {
     static UpdateUser = async (userId, data) => {
         try {
             await UserModel.updateOne({
-                _id : userId
+                _id: userId
             }, data);
 
             return {
+<<<<<<< HEAD
                 state : true,
                 message : "user update success"
             }
@@ -138,6 +148,16 @@ class UserController {
             return {
                 state : false,
                 message : e.message
+=======
+                state: true,
+                message: "user update success"
+            }
+        }
+        catch (e) {
+            return {
+                state: false,
+                message: e.message
+>>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
             }
         }
     }
@@ -145,7 +165,7 @@ class UserController {
     static FindUser = async (_id) => {
         try {
             const result = await UserModel.findOne({
-                _id : _id
+                _id: _id
             });
             if (result == null) {
                 throw new Error("user not found")
@@ -154,10 +174,10 @@ class UserController {
             return {
                 state: true,
                 message: "find Success",
-                data : result
+                data: result
             };
         }
-        catch(e) {
+        catch (e) {
             return {
                 state: false,
                 message: e.message,
@@ -169,7 +189,7 @@ class UserController {
     static FindUserById = async (userId) => {
         try {
             const result = await UserModel.findOne({
-                userId : userId
+                userId: userId
             });
             if (result == null) {
                 throw new Error("user not found")
@@ -178,10 +198,10 @@ class UserController {
             return {
                 state: true,
                 message: "find Success",
-                data : result
+                data: result
             };
         }
-        catch(e) {
+        catch (e) {
             return {
                 state: false,
                 message: e.message,
@@ -193,7 +213,7 @@ class UserController {
     static GetMyData = async (userId) => {
         try {
             const result = await UserModel.findOne({
-                _id : userId
+                _id: userId
             })
 
             if (result == null) {
@@ -201,15 +221,19 @@ class UserController {
             }
 
             const myBuild = await BModel.find({
-                userId : userId
+                userId: userId
             }).lean()
 
-            const date = Date.now();    
+            const date = Date.now();
 
             const buildMap = {};
             const buildList = [];
 
+<<<<<<< HEAD
             for(const b of myBuild) {
+=======
+            for (const b of myBuild) {
+>>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
                 if (b.name in buildMap == false) {
                     buildMap[b.name] = 1
                 }
@@ -220,18 +244,19 @@ class UserController {
                 if (b.active == false) {
                     const diff = b.doneTime.getTime() - date;
                     if (diff < 0) {
-                        buildList.push({...b, stored: parseInt(b.stored), remainingTime: 0, active: true});
+                        buildList.push({ ...b, stored: parseInt(b.stored), remainingTime: 0, active: true });
                     }
                     else {
-                        buildList.push({...b, stored: parseInt(b.stored), remainingTime : Math.floor(diff / 1000)})
+                        buildList.push({ ...b, stored: parseInt(b.stored), remainingTime: Math.floor(diff / 1000) })
                     }
                 }
                 else {
-                    buildList.push({...b, stored: parseInt(b.stored), remainingTime: 0})
+                    buildList.push({ ...b, stored: parseInt(b.stored), remainingTime: 0 })
                 }
             }
 
             const responseData = {
+<<<<<<< HEAD
                 Name: result.userName,
                 Credit: result.credit,
                 TierPoint: result.tierPoint,
@@ -239,15 +264,24 @@ class UserController {
                 HallLv: result.hallLv,
                 BuildMap : buildMap,
                 BuildList: buildList
+=======
+                name: result.userName,
+                credit: result.credit,
+                tierPoint: result.tierPoint,
+                lv: result.lv,
+                hallLv: result.hallLv,
+                buildMap: buildMap,
+                buildList: buildList
+>>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
             }
 
             return {
                 state: true,
                 message: "find Success",
-                data : responseData
+                data: responseData
             };
         }
-        catch(e) {
+        catch (e) {
             return {
                 state: false,
                 message: e.message,

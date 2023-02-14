@@ -2,55 +2,55 @@ import MonsterInfo from "../../Data/MonsterInfo";
 import { ArmyModel, TaskModel } from "../../DB";
 
 class TaskController {
-    static Create = async ({UserId, Name, Type}) => {
+    static Create = async ({ userId, name, type }) => {
         try {
             let remainingTime = 0;
 
             const army = await ArmyModel.findOne({
-                userId: UserId
+                userId: userId
             });
 
-            if (Type == "Monster") {
-                if (Name in MonsterInfo == false) {
+            if (type == "Monster") {
+                if (name in MonsterInfo == false) {
                     throw new Error("not valid monster name. check ID.");
                 }
-                if (army.monsterProdMaxCount < 
-                    army.monsterProdCurCount + MonsterInfo[Name].SummonCapacity) {
+                if (army.monsterProdMaxCount <
+                    army.monsterProdCurCount + MonsterInfo[name].SummonCapacity) {
                     throw new Error("The queue is full.");
                 }
 
                 await ArmyModel.updateOne({
-                    userId : UserId
+                    userId: userId
                 }, {
                     $inc: {
-                        monsterProdCurCount: MonsterInfo[Name].SummonCapacity
+                        monsterProdCurCount: MonsterInfo[name].SummonCapacity
                     }
                 })
-                remainingTime = MonsterInfo[Name].SpawnTime;
-                
+                remainingTime = MonsterInfo[name].SpawnTime;
+
             }
-            else if (Type == "Magic") {
-                if (Name in MonsterInfo == false) {
+            else if (type == "Magic") {
+                if (name in MonsterInfo == false) {
                     throw new Error("not valid magic name. check ID.");
                 }
                 if (army.magicProdMaxCount <
-                    army.magicProdCurCount + MagicInfo[Name].SummonCapacity) {
+                    army.magicProdCurCount + MagicInfo[name].SummonCapacity) {
                     throw new Error("The queue is full.");
                 }
                 await ArmyModel.updateOne({
-                    userId : UserId
+                    userId: userId
                 }, {
-                    $inc : {
-                        magicProdCurCount: MagicInfo[Name].SummonCapacity,
+                    $inc: {
+                        magicProdCurCount: MagicInfo[name].SummonCapacity,
                     }
                 })
-                remainingTime = MagicInfo[Name].SpawnTime;
+                remainingTime = MagicInfo[name].SpawnTime;
             }
 
             const result = await TaskModel.create({
-                userId: UserId,
-                name: Name,
-                type : Type,
+                userId: userId,
+                name: name,
+                type: type,
                 remainingTime: remainingTime
             });
 
@@ -64,7 +64,7 @@ class TaskController {
                 taskId: result._id
             }
 
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: e.message
@@ -72,12 +72,12 @@ class TaskController {
         }
     }
 
-    static GetTaskList = async({UserId}) => {
+    static GetTaskList = async ({ userId }) => {
         try {
             const tasks = await TaskModel.find({
-                userId: UserId
+                userId: userId
             }).sort({
-                "createdAt" : 1
+                "createdAt": 1
             }).lean();
 
             if (tasks == null) {
@@ -87,18 +87,18 @@ class TaskController {
             const taskList = [];
             const date = Date.now();
 
-            for(const t of tasks) {
+            for (const t of tasks) {
                 if (t.isStart == true) {
                     const diff = t.doneTime.getTime() - date;
                     if (diff > 0) {
-                        taskList.push({...t, remainingTime : Math.floor(diff / 1000)})
+                        taskList.push({ ...t, remainingTime: Math.floor(diff / 1000) })
                     }
                     else {
-                        taskList.push({...t});
+                        taskList.push({ ...t });
                     }
                 }
                 else {
-                    taskList.push({...t})
+                    taskList.push({ ...t })
                 }
             }
 
@@ -108,7 +108,7 @@ class TaskController {
                 data: taskList
             }
 
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: e.message
@@ -116,11 +116,11 @@ class TaskController {
         }
     }
 
-    static GetTask = async({UserId, TaskId}) => {
+    static GetTask = async ({ userId, taskId }) => {
         try {
             const result = await TaskModel.findOne({
-                _id : TaskId,
-                userId: UserId
+                _id: taskId,
+                userId: userId
             });
 
             if (result == null) {
@@ -133,7 +133,7 @@ class TaskController {
                 data: result
             }
 
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: e.message
@@ -141,11 +141,11 @@ class TaskController {
         }
     }
 
-    static Delete = async({ UserId, TaskId }) => {
+    static Delete = async ({ userId, taskId }) => {
         try {
             const task = await TaskModel.findOne({
-                userId : UserId,
-                _id : TaskId
+                userId: userId,
+                _id: taskId
             })
             if (task == null) {
                 throw new Error("invalid ID. Please check your ID.");
@@ -153,27 +153,27 @@ class TaskController {
 
             if (task.type == "Monster") {
                 await ArmyModel.updateOne({
-                    userId : UserId
+                    userId: userId
                 }, {
-                    $inc : {
-                        monsterProdCurCount : -1 * MonsterInfo[task.name].SummonCapacity
+                    $inc: {
+                        monsterProdCurCount: -1 * MonsterInfo[task.name].SummonCapacity
                     }
-                    
+
                 })
             }
             else if (task.type == "Magic") {
                 await ArmyModel.updateOne({
-                    userId : UserId
+                    userId: userId
                 }, {
-                    $inc : {
-                        magicProdCurCount : -1 * MagicInfo[task.name].SummonCapacity
+                    $inc: {
+                        magicProdCurCount: -1 * MagicInfo[task.name].SummonCapacity
                     }
                 })
             }
-            
+
             const result = await TaskModel.deleteOne({
-                userId : UserId,
-                _id : TaskId
+                userId: userId,
+                _id: taskId
             });
             if (result.deletedCount == 0) {
                 throw new Error("delete task fail");
@@ -183,7 +183,7 @@ class TaskController {
                 state: true,
                 message: "delete Task Success",
             }
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: e.message
@@ -193,26 +193,26 @@ class TaskController {
 
     // 즉시 완료
 
-    static Start = async({UserId, TaskId}) => {
+    static Start = async ({ userId, taskId }) => {
         try {
             const workingTaskCount = await TaskModel.countDocuments({
-                userId: UserId,
-                isStart : true
+                userId: userId,
+                isStart: true
             })
             if (workingTaskCount > 0) {
                 throw new Error("An Task has already been started.")
             }
 
             const task = await TaskModel.findOne({
-                userId : UserId,
-                _id : TaskId
+                userId: userId,
+                _id: taskId
             });
             if (task == null) {
                 throw new Error("taskId is not valid");
             }
 
             const army = await ArmyModel.findOne({
-                userId : UserId
+                userId: userId
             });
             if (army == null) {
                 throw new Error("userId is not valud");
@@ -222,7 +222,6 @@ class TaskController {
                 if (army.monsterProductionMaxCount <= army.monsterProductionCurrentCount) {
                     throw new Error("You've reached the limit of monster summoning.")
                 }
-                
             }
             else if (task.type == "Magic") {
                 if (army.magicProductionMaxCount <= army.magicProductionCurrentCount) {
@@ -243,14 +242,14 @@ class TaskController {
             doneTime.setMilliseconds(0);
 
             console.log("time : ", doneTime)
-            
+
             doneTime.setSeconds(doneTime.getSeconds() + runningTime)
 
             console.log("resultTime : ", doneTime)
 
             await TaskModel.updateOne({
-                userId: UserId,
-                _id : TaskId
+                userId: userId,
+                _id: taskId
             }, {
                 doneTime: doneTime,
                 isStart: true
@@ -267,8 +266,8 @@ class TaskController {
                 message: "Start Task Success",
                 remainingTime: runningTime
             }
-            
-        } catch(e) {
+
+        } catch (e) {
             console.log(e.stack)
             return {
                 state: false,

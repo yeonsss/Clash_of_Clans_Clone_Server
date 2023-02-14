@@ -5,7 +5,7 @@ class BController {
     static GetInfo = async (rbId) => {
         try {
             const result = await BModel.findOne({
-                _id : rbId
+                _id: rbId
             });
 
             if (result == null) {
@@ -13,23 +13,23 @@ class BController {
             }
 
             return {
-                state : true,
-                message : "GetInfo success",
-                buildId : result._id,
+                state: true,
+                message: "GetInfo success",
+                buildId: result._id,
                 name: result.name,
                 active: result.active,
-                stored : result.stored,
-                max : result.max,
+                stored: result.stored,
+                max: result.max,
                 isFull: result.stored >= result.max ? true : false
             }
         }
-        catch(e) {
+        catch (e) {
             return {
-                state : false,
-                message : e.message,
-                buildId : "",
-                stored : 0,
-                max : 0,
+                state: false,
+                message: e.message,
+                buildId: "",
+                stored: 0,
+                max: 0,
                 isFull: false
             }
         }
@@ -60,48 +60,49 @@ class BController {
     //     }
     // }
 
-    static GetBuilds = async(UserId) => {
+    static GetBuilds = async (userId) => {
         try {
             const buildList = await BModel.find({
-                userId : UserId,
-                active : true
+                userId: userId,
+                active: true
             })
 
             const result = [];
-            for(const b of buildList) {
+            for (const b of buildList) {
                 result.push({
-                    name : b.name,
-                    Lv : b.lv,
-                    PosX : b.posX,
-                    PosY : b.posY
+                    name: b.name,
+                    Lv: b.lv,
+                    PosX: b.posX,
+                    PosY: b.posY
                 })
             }
 
             return {
-                state : true,
-                message : "getBuilds Success",
-                builds : result
+                state: true,
+                message: "getBuilds Success",
+                builds: result
             }
 
-        } catch(e) {
+        } catch (e) {
             return {
-                state : false,
-                message : e.message,
-                builds : null,
+                state: false,
+                message: e.message,
+                builds: null,
             }
         }
     }
 
-    static Create = async ({UserId, Name, PosX, PosY, ClientTime}) => {
+    static Create = async ({ userId, name, posX, posY, clientTime }) => {
         try {
-            if (Name in BuildingInfo == false) {
+            console.log(clientTime)
+            if (name in BuildingInfo == false) {
                 throw new Error("BuildName error!! check name.");
             }
 
-            const buildCost = BuildingInfo[Name].BuildCost;
+            const buildCost = BuildingInfo[name].BuildCost;
 
             const user = await UserModel.findOne({
-                _id : UserId
+                _id: userId
             })
 
             if (user == null) {
@@ -113,69 +114,69 @@ class BController {
             }
 
             await UserModel.updateOne({
-                _id : UserId
+                _id: userId
             }, {
-                $inc : {
-                    credit : -1 * buildCost
+                $inc: {
+                    credit: -1 * buildCost
                 }
             })
 
             // 완료까지 걸리는 시간 (초)
-            const runningTime = BuildingInfo[Name].BuildTime;
+            const runningTime = BuildingInfo[name].BuildTime;
             const date = new Date();
 
             date.setMilliseconds(0);
             console.log("datetime : ", date)
 
-            // const ctime = new Date(ClientTime);
-            const ctime = ClientTime;
+            const ctime = new Date(clientTime);
+            // const ctime = clientTime;
             ctime.setMilliseconds(0);
             console.log("clienttime : ", ctime)
-            
+
             console.log("difftime : ", date - ctime)
             const doneTime = new Date(date - (date - ctime));
 
             console.log("time : ", doneTime)
-            
+
             doneTime.setSeconds(doneTime.getSeconds() + runningTime)
 
             console.log("resultTime : ", doneTime)
 
             const result = await BModel.create({
-                userId : UserId,
-                name : Name,
-                buildType : BuildingInfo[Name].BuildType,
-                posX : PosX,
-                posY : PosY,
+                userId: userId,
+                name: name,
+                buildType: BuildingInfo[name].BuildType,
+                posX: posX,
+                posY: posY,
                 doneTime: doneTime
             });
 
             return {
-                state : true,
-                message : "Create Success",
-                buildId : result._id
+                state: true,
+                message: "Create Success",
+                buildId: result._id
             }
         }
-        catch(e) {
+        catch (e) {
             console.log(e.stack)
             return {
-                state : false,
-                message : e.message,
-                buildId : null,
+                state: false,
+                message: e.message,
+                buildId: null,
             }
         }
     }
 
-    static Upgrade = async({ UserId, BuildId }) => {
+    static Upgrade = async ({ userId, buildId }) => {
         try {
             const build = await BModel.findOne({
-                userId: UserId,
-                _id : BuildId
+                userId: userId,
+                _id: buildId
             });
             if (build == null) throw new Error("invalid id.");
 
             const user = await UserModel.findOne({
-                _id : UserId,
+                _id: userId,
             })
             if (user == null) throw new Error("invalid user id.");
 
@@ -183,10 +184,10 @@ class BController {
             if (user.credit - cost < 0) {
                 throw new Error("Not enough credit.");
             }
-            
+
             const result = await BModel.updateOne({
-                userId: UserId,
-                _id : BuildId
+                userId: userId,
+                _id: buildId
             }, {
                 $inc: {
                     lv: 1
@@ -194,27 +195,27 @@ class BController {
             }, {
                 returnDocument: "after"
             })
-    
+
             if (result == null) {
                 throw new Error("upgrade fail");
             }
 
             if (result.name == "Hall") {
                 await UserModel.updateOne({
-                    _id: UserId
+                    _id: userId
                 }, {
-                    hallLv: result.lv,  
-                    $inc : {
-                        credit : -1 * cost
+                    hallLv: result.lv,
+                    $inc: {
+                        credit: -1 * cost
                     }
                 })
             }
             else {
                 await UserModel.updateOne({
-                    _id : UserId
+                    _id: userId
                 }, {
-                    $inc : {
-                        credit : -1 * cost
+                    $inc: {
+                        credit: -1 * cost
                     }
                 });
             }
@@ -224,7 +225,7 @@ class BController {
                 message: "upgrade success",
             }
 
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: e.message
@@ -232,32 +233,32 @@ class BController {
         }
     }
 
-    static GetResource = async(UserId) => {
+    static GetResource = async (userId) => {
         try {
             const builds = await BModel.find({
-                userId : UserId,
+                userId: userId,
                 buildType: "Resource"
             })
 
             let creditMount = 0;
 
-            for(const b of builds) {
+            for (const b of builds) {
                 if (b.stored < 1) continue;
 
                 creditMount += b.stored
                 await BModel.updateOne({
-                    _id : b._id
+                    _id: b._id
                 }, {
                     stored: 0
                 })
             }
 
             const result = await UserModel.findOneAndUpdate({
-                _id : UserId
+                _id: userId
             }, {
                 $inc: {
                     credit: creditMount
-                } 
+                }
             }, {
                 returnDocument: "after"
             })
@@ -272,7 +273,7 @@ class BController {
                 credit: parseInt(result.credit)
             }
 
-        } catch(e) {
+        } catch (e) {
             console.log(e.stack)
             return {
                 state: false,
@@ -281,14 +282,14 @@ class BController {
         }
     }
 
-    static MovePos = async({ UserId, BuildId, PosX, PosY }) => {
+    static MovePos = async ({ userId, buildId, posX, posY }) => {
         try {
             const result = await BModel.updateOne({
-                _id : BuildId,
-                userId: UserId
+                _id: buildId,
+                userId: userId
             }, {
-                posX : PosX,
-                posY : PosY,
+                posX: posX,
+                posY: posY,
             })
 
             if (result == null) {
@@ -296,15 +297,15 @@ class BController {
             }
 
             return {
-                state : true,
-                message : "Update Pos Success",
+                state: true,
+                message: "Update Pos Success",
             }
 
-        } catch(e) {
+        } catch (e) {
             console.log(e.stack)
             return {
-                state : false,
-                message : e.message,
+                state: false,
+                message: e.message,
             }
         }
     }

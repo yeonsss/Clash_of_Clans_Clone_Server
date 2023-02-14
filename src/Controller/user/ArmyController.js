@@ -1,13 +1,12 @@
 class ArmyController {
-    static GetMyArmy = async ({UserId}) => {
+    static GetMyArmy = async ({ userId }) => {
         try {
-            // TODO: 
 
             return {
                 state: true,
-                message : "GetMyArmy success"
+                message: "GetMyArmy success"
             }
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: "GetMyArmy fail"
@@ -15,14 +14,14 @@ class ArmyController {
         }
     }
 
-    static GetMySelectArmy = async({UserId}) => {
+    static GetMySelectArmy = async ({ userId }) => {
         try {
 
             return {
                 state: true,
-                message : "GetMySelectArmy success"
+                message: "GetMySelectArmy success"
             }
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: "GetMySelectArmy fail"
@@ -31,14 +30,14 @@ class ArmyController {
     }
 
     // 부대 만들기 => 유닛 추가
-    static AddMonster = async ({UserId, Name, Type, Count}) => {
+    static AddMonster = async ({ userId, name, type, count }) => {
         try {
 
             return {
                 state: true,
-                message : "AddMonster success"
+                message: "AddMonster success"
             }
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: "AddMonster fail"
@@ -47,14 +46,14 @@ class ArmyController {
     }
 
     // 부대 만들기 => 마법 추가
-    static AddMagic = async ({UserId, Name, Type, Count}) => {
+    static AddMagic = async ({ userId, name, type, count }) => {
         try {
 
             return {
                 state: true,
-                message : "AddMagic success"
+                message: "AddMagic success"
             }
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: "AddMagic fail"
@@ -62,30 +61,30 @@ class ArmyController {
         }
     }
 
-    static UseMonster = async ({UserId, Name, Type, Count}) => {
+    static UseMonster = async ({ userId, name, type, count }) => {
         try {
 
             return {
                 state: true,
-                message : "UseMonster success"
+                message: "UseMonster success"
             }
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: "UseMonster fail"
             }
         }
     }
-    
 
-    static UseMagic = async ({UserId, Name, Type, Count}) => {
+
+    static UseMagic = async ({ userId, name, type, count }) => {
         try {
 
             return {
                 state: true,
-                message : "UseMagic success"
+                message: "UseMagic success"
             }
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: "UseMagic fail"

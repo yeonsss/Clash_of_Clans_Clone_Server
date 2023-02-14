@@ -7,26 +7,26 @@ const UserRouter = Router();
 
 UserRouter.post("/register", async (req, res, next) => {
     try {
-        const {Id, Password, UserName} = req.body;
+        const { id, password, userName } = req.body;
 
-        if (Id == undefined || Id == null ||
-            Password == undefined || Password == null
-            ) {
+        if (id == undefined || id == null ||
+            password == undefined || password == null
+        ) {
             throw new Error("register fail check body");
         }
 
-        const result = await UserController.Register(Id, Password, UserName);
+        const result = await UserController.Register(id, password, userName);
 
         if (result.state == false) {
             throw new Error("register fail");
         }
 
         res.status(200).send({
-            State: true,
-            Message: result.message
+            state: true,
+            message: result.message
         });
-        
-    } catch(e) {
+
+    } catch (e) {
         next(e);
     }
 
@@ -34,8 +34,8 @@ UserRouter.post("/register", async (req, res, next) => {
 
 UserRouter.post("/login", async (req, res, next) => {
     try {
-        const {Id, Password} = req.body;
-        const result = await UserController.Login(Id, Password);
+        const { id, password } = req.body;
+        const result = await UserController.Login(id, password);
 
         if (result.state == false) {
             throw new Error("Login Fail")
@@ -46,11 +46,11 @@ UserRouter.post("/login", async (req, res, next) => {
         req.session.save();
 
         res.status(200).json({
-            State: result.state,
-            Message: result.message
+            state: result.state,
+            message: result.message
         });
     }
-    catch(e) {
+    catch (e) {
         next(e);
     }
 })
@@ -62,12 +62,12 @@ UserRouter.get("/logout", async (req, res, next) => {
                 throw new Error("logout fail");
             }
             res.status(200).send({
-                State: true,
-                Message: "logout success"
+                state: true,
+                message: "logout success"
             });
         })
     }
-    catch(e) {
+    catch (e) {
         next(e)
     }
 })
@@ -75,18 +75,18 @@ UserRouter.get("/logout", async (req, res, next) => {
 UserRouter.get("/user", verifySession, async (req, res, next) => {
     try {
         const result = await UserController.GetMyData(req.session.userId);
-        
+
         if (result.state == false) {
             throw new Error(result.message);
         }
 
         res.status(200).send({
-            State: true,
-            Message: "get user success",
-            Data: result.data
+            state: true,
+            message: "get user success",
+            userInfo: result.data
         })
     }
-    catch(e) {
+    catch (e) {
         next(e);
     }
 })
@@ -101,12 +101,12 @@ UserRouter.get("/user/build", verifySession, async (req, res, next) => {
         }
 
         res.status(200).send({
-            State: true,
-            Message: "get user build success",
-            Data : result.data
+            state: true,
+            message: "get user build success",
+            data: result.data
         })
     }
-    catch(e) {
+    catch (e) {
         next(e)
     }
 })
@@ -149,7 +149,7 @@ UserRouter.get("/rival", verifySession, async (req, res, next) => {
             throw new Error(users.message);
         }
 
-        for(const us of users.data) {
+        for (const us of users.data) {
             const build = await BController.GetBuilds(us.UserId);
             console.log(build.builds)
             if (build.state == false) {
@@ -166,10 +166,10 @@ UserRouter.get("/rival", verifySession, async (req, res, next) => {
         res.status(200).send({
             State: true,
             Message: "get rival success",
-            Data : result
+            Data: result
         })
     }
-    catch(e) {
+    catch (e) {
         next(e)
     }
 })
