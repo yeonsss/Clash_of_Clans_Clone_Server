@@ -53,9 +53,15 @@ class TaskController {
                 type: type,
                 remainingTime: remainingTime
             });
-
             if (result == null) {
                 throw new Error("Create Task fail");
+            }
+
+            const startTCount = await TaskModel.countDocuments({
+                isStart: true
+            })
+            if (startTCount < 1) {
+                await this.Start({userId, taskId: result._id})
             }
 
             return {

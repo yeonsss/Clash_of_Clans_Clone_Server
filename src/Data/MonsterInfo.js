@@ -14,16 +14,19 @@ const MonsterInfo = {
             "Level" : 1,
             "Hp" : 50,
             "Attack" : 5,
+            "LevelUpCost" : 0,
             "PrefabPath" : "Monster/Bat"
           }, {
             "Level" : 2,
             "Hp" : 70,
             "Attack" : 7,
+            "LevelUpCost" : 100,
             "PrefabPath" : "Monster/Bat"
           }, {
             "Level" : 3,
             "Hp" : 90,
             "Attack" : 9,
+            "LevelUpCost" : 200,
             "PrefabPath" : "Monster/Bat"
           }
         ]
@@ -37,22 +40,25 @@ const MonsterInfo = {
         "AttackCooldown": 1,
         "SkillCooldown": 3,
         "SummonCapacity": 2,
-        "SpawnTime": 60,
+        "SpawnTime": 20,
         "Levels" : [
         {
             "Level" : 1,
             "Hp" : 30,
             "Attack" : 10,
+            "LevelUpCost" : 0,
             "PrefabPath" : "Monster/Mage"
         }, {
             "Level" : 2,
             "Hp" : 40,
             "Attack" : 12,
+            "LevelUpCost" : 150,
             "PrefabPath" : "Monster/Mage"
         }, {
             "Level" : 3,
             "Hp" : 50,
             "Attack" : 15,
+            "LevelUpCost" : 300,
             "PrefabPath" : "Monster/Mage"
         }
         ]

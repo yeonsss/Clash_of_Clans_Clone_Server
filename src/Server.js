@@ -11,6 +11,7 @@ import dotenv from "dotenv";
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import TaskSchedule from './Task/TaskSchedule';
+import ArmyRouter from './Router/ArmyRouter';
 
 dotenv.config();
 
@@ -44,6 +45,7 @@ app.get('/', async (req, res, next) => {
 app.use(UserRouter);
 app.use(BRouter);
 app.use(TRouter);
+app.use(ArmyRouter);
 
 app.use(errorMiddleware);
 
