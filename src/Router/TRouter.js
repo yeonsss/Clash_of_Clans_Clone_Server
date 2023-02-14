@@ -6,15 +6,17 @@ const TRouter = Router();
 
 TRouter.post("/task", verifySession, async (req, res, next) => {
     try {
-        const {Code} = req.body;
-
-        if (Code == null || Code == undefined) {
+        const {Name, Type} = req.body;
+        
+        if (Name == null || Name == undefined ||
+            Type == null || Type == undefined ) {
             throw new Error("check your body");
         }
 
         const result = await TaskController.Create({
             UserId: req.session.userId,
-            Code: Code
+            Name: Name,
+            Type: Type
         });
 
         if (result.state == false) {
@@ -28,6 +30,28 @@ TRouter.post("/task", verifySession, async (req, res, next) => {
         })
     }
     catch(e) {
+        next(e);
+    }
+})
+
+TRouter.delete("/task/:id", verifySession, async(req, res, next) => {
+    try {
+        const {id} = req.params;
+
+        if (id == null || id == undefined) {
+            throw new Error("check your params")
+        }
+        const result = await TaskController.Delete({ UserId: req.session.userId, TaskId: id });
+
+        if (result.state == false) {
+            throw new Error(result.message);
+        }
+
+        res.status(200).send({
+            State: true,
+            Message: result.message,
+        })
+    } catch(e) {
         next(e);
     }
 })

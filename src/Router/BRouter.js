@@ -121,9 +121,9 @@ BRouter.get("/build/:id", verifySession, async (req, res, next) => {
 
 BRouter.post("/build", verifySession, async (req, res, next) => {
     try {
-        const { Code, PosX, PosY, ClientTime } = req.body;
+        const { Name, PosX, PosY, ClientTime } = req.body;
 
-        // if (Code == null || Code == undefined ||
+        // if (Name == null || Name == undefined ||
         //     PosX == null || PosX == undefined ||
         //     PosY == null || PosY == undefined ||
         //     ClientTime == null || ClientTime == undefined
@@ -134,7 +134,7 @@ BRouter.post("/build", verifySession, async (req, res, next) => {
         const date = new Date();
 
         const result = await BController.Create({
-            UserId: req.session.userId, Code, PosX, PosY, ClientTime: date
+            UserId: req.session.userId, Name, PosX, PosY, ClientTime: date
         })
 
         if (result.state == false) {

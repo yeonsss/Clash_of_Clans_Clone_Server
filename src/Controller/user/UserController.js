@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from 'uuid';
-import { BModel, UserModel } from "../../DB";
+import MonsterInfo from "../../Data/MonsterInfo";
+import { ArmyModel, BModel, UserModel } from "../../DB";
 
 class UserController {
 
@@ -39,34 +40,43 @@ class UserController {
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            const armyMap = {
-                1: 0,
-                2: 0
-            }
-
-            const buildMap = {
-                1: 0,
-                2: 0,
-                3: 0,
-                4: 1
-            }
-
-            // armyMap[3] = 0;
-
             const result = await UserModel.create({
                 id : id,
                 password: hashedPassword,
                 userName : userName == "" || userName == null ? uuidv4() : userName,
-                army: armyMap,
-                build: buildMap
             });
 
             await BModel.create({
                 userId: result._id,
-                code: 4,
-                lv: 1,
+                name: "Hall",
                 active: true,
             });
+
+            const monsterList = Object.keys(MonsterInfo);
+            const monsterCountMap = {};
+            const monsterLevelMap = {};
+            const magicCountMap = {};
+            const magicLevelMap = {};
+            const selectMonsterMap = {};
+            const selectMagicMap = {};
+
+            monsterList.forEach((element) => {
+                monsterCountMap[`${element}`] = 0;
+                monsterLevelMap[`${element}`] = 1;
+                selectMonsterMap[`${element}`] = 0;
+            });
+
+            await ArmyModel.create({
+                userId: result._id,
+                magicCountMap: magicCountMap,
+                magicLevelMap: magicLevelMap,
+                monsterCountMap: monsterCountMap,
+                monsterLevelMap: monsterLevelMap,
+                magicProdMaxCount: 10,
+                monsterProdMaxCount: 80,
+                selectMonsterMap : selectMonsterMap,
+                selectMagicMap : selectMagicMap
+            })
 
             return {
                 state: true,
@@ -128,34 +138,6 @@ class UserController {
             return {
                 state : false,
                 message : e.message
-            }
-        }
-    }
-
-    static UpdateArmy = async (userId, {Code, Count}) => {
-        try {
-            //TODO: 총 용량도 계산.
-            const result = await UserModel.updateOne({
-                _id : userId
-            }, {
-                $inc: {
-                    [`army.${Code}`]: Count,
-                }
-            });
-
-            if (result == null) {
-                throw new Error("update fail")
-            }
-
-            return {
-                state: true,
-                message: "my data update Success",
-            }
-        }
-        catch(e) {
-            return {
-                state: false,
-                message: e.message,
             }
         }
     }
@@ -224,9 +206,17 @@ class UserController {
 
             const date = Date.now();    
 
+            const buildMap = {};
             const buildList = [];
 
             for(const b of myBuild) {
+                if (b.name in buildMap == false) {
+                    buildMap[b.name] = 1
+                }
+                else {
+                    buildMap[b.name] += 1
+                }
+
                 if (b.active == false) {
                     const diff = b.doneTime.getTime() - date;
                     if (diff < 0) {
@@ -244,12 +234,10 @@ class UserController {
             const responseData = {
                 Name: result.userName,
                 Credit: result.credit,
-                TierPoint: result.TierPoint,
+                TierPoint: result.tierPoint,
                 Lv: result.lv,
                 HallLv: result.hallLv,
-                ArmyCapacity: result.armyCapacity,
-                Army: result.army,
-                Build: result.build,
+                BuildMap : buildMap,
                 BuildList: buildList
             }
 

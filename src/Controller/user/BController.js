@@ -1,3 +1,4 @@
+import BuildingInfo from "../../Data/BuildingInfo";
 import { BModel, UserModel } from "../../DB";
 
 class BController {
@@ -15,7 +16,7 @@ class BController {
                 state : true,
                 message : "GetInfo success",
                 buildId : result._id,
-                code: result.code,
+                name: result.name,
                 active: result.active,
                 stored : result.stored,
                 max : result.max,
@@ -34,32 +35,30 @@ class BController {
         }
     }
 
-    static GetMyBuilds = async(UserId) => {
-        try {
-            const buildList = await BModel.find({
-                userId: UserId
-            })
+    // static GetMyBuilds = async(UserId) => {
+    //     try {
+    //         const buildList = await BModel.find({
+    //             userId: UserId
+    //         })
 
-            if (buildList.length == 0) {
-                throw new Error("Get My Builds Fail");
-            }
+    //         if (buildList.length == 0) {
+    //             throw new Error("Get My Builds Fail");
+    //         }
 
-            
+    //         return {
+    //             state: true,
+    //             message: "Gat My Builds Success",
+    //             data : buildList
+    //         }
 
-            return {
-                state: true,
-                message: "Gat My Builds Success",
-                data : buildList
-            }
-
-        } catch(e) {
-            console.log(e.stack)
-            return {
-                state: false,
-                message: e.message,
-            }
-        }
-    }
+    //     } catch(e) {
+    //         console.log(e.stack)
+    //         return {
+    //             state: false,
+    //             message: e.message,
+    //         }
+    //     }
+    // }
 
     static GetBuilds = async(UserId) => {
         try {
@@ -71,7 +70,7 @@ class BController {
             const result = [];
             for(const b of buildList) {
                 result.push({
-                    Code : b.code,
+                    name : b.name,
                     Lv : b.lv,
                     PosX : b.posX,
                     PosY : b.posY
@@ -93,11 +92,36 @@ class BController {
         }
     }
 
-    static Create = async ({UserId, Code, PosX, PosY, ClientTime}) => {
+    static Create = async ({UserId, Name, PosX, PosY, ClientTime}) => {
         try {
-            //TODO: 총 용량 계산
+            if (Name in BuildingInfo == false) {
+                throw new Error("BuildName error!! check name.");
+            }
+
+            const buildCost = BuildingInfo[Name].BuildCost;
+
+            const user = await UserModel.findOne({
+                _id : UserId
+            })
+
+            if (user == null) {
+                throw new Error("not found user");
+            }
+
+            if (user.credit - buildCost < 0) {
+                throw new Error("not enough credit");
+            }
+
+            await UserModel.updateOne({
+                _id : UserId
+            }, {
+                $inc : {
+                    credit : -1 * buildCost
+                }
+            })
+
             // 완료까지 걸리는 시간 (초)
-            const runningTime = 60 * 5;
+            const runningTime = BuildingInfo[Name].BuildTime;
             const date = new Date();
 
             date.setMilliseconds(0);
@@ -119,29 +143,12 @@ class BController {
 
             const result = await BModel.create({
                 userId : UserId,
-                code : Code,
+                name : Name,
+                buildType : BuildingInfo[Name].BuildType,
                 posX : PosX,
                 posY : PosY,
                 doneTime: doneTime
             });
-
-            console.log(result);
-
-            const result2 = await UserModel.findOneAndUpdate({
-                _id : UserId
-            }, {
-                $inc: {
-                    [`build.${Code}`]: 1,
-                }
-            },{
-                returnDocument: "after"
-            })
-
-            console.log(result2);
-
-            if (result == null) {
-                throw new Error("Create Fail");
-            }
 
             return {
                 state : true,
@@ -161,8 +168,23 @@ class BController {
 
     static Upgrade = async({ UserId, BuildId }) => {
         try {
-            //TODO: 크래딧 계산 로직
-            const result = await BModel.findOneAndUpdate({
+            const build = await BModel.findOne({
+                userId: UserId,
+                _id : BuildId
+            });
+            if (build == null) throw new Error("invalid id.");
+
+            const user = await UserModel.findOne({
+                _id : UserId,
+            })
+            if (user == null) throw new Error("invalid user id.");
+
+            const cost = BuildingInfo[build.name].Levels[build.lv - 1].UpgradeCost;
+            if (user.credit - cost < 0) {
+                throw new Error("Not enough credit.");
+            }
+            
+            const result = await BModel.updateOne({
                 userId: UserId,
                 _id : BuildId
             }, {
@@ -177,14 +199,24 @@ class BController {
                 throw new Error("upgrade fail");
             }
 
-            console.log(result)
-
-            if (result.code == 4) {
+            if (result.name == "Hall") {
                 await UserModel.updateOne({
                     _id: UserId
                 }, {
-                    hallLv: result.lv
+                    hallLv: result.lv,  
+                    $inc : {
+                        credit : -1 * cost
+                    }
                 })
+            }
+            else {
+                await UserModel.updateOne({
+                    _id : UserId
+                }, {
+                    $inc : {
+                        credit : -1 * cost
+                    }
+                });
             }
 
             return {
@@ -204,7 +236,7 @@ class BController {
         try {
             const builds = await BModel.find({
                 userId : UserId,
-                code: 3
+                buildType: "Resource"
             })
 
             let creditMount = 0;

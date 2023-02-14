@@ -34,21 +34,6 @@ const UserSchema = mongoose.Schema(
             default: 1,
             required: true
         },
-        armyCapacity: {
-            type: Number,
-            default: 0,
-            required: true
-        },
-        army: {
-            type: Map,
-            of : Number,
-            required: true
-        },
-        build: {
-            type: Map,
-            of : Number,
-            required: true
-        }
     },
     { 
         timestamps: true 

@@ -34,8 +34,8 @@ UserRouter.post("/register", async (req, res, next) => {
 
 UserRouter.post("/login", async (req, res, next) => {
     try {
-        const {id, password} = req.body;
-        const result = await UserController.Login(id, password);
+        const {Id, Password} = req.body;
+        const result = await UserController.Login(Id, Password);
 
         if (result.state == false) {
             throw new Error("Login Fail")
@@ -111,30 +111,30 @@ UserRouter.get("/user/build", verifySession, async (req, res, next) => {
     }
 })
 
-UserRouter.get("/user/:id", verifySession, async(req, res, next) => {
-    try {
-        const id = req.params.id;
-        if (id == null || id == undefined) {
-            throw new Error("There is no ID you want to search for.")
-        }
+// UserRouter.get("/user/:id", verifySession, async(req, res, next) => {
+//     try {
+//         const id = req.params.id;
+//         if (id == null || id == undefined) {
+//             throw new Error("There is no ID you want to search for.")
+//         }
 
-        const result = await UserController.FindUser(id);
+//         const result = await UserController.FindUser(id);
 
-        if (result.state == false) {
-            throw new Error(result.message);
-        }
+//         if (result.state == false) {
+//             throw new Error(result.message);
+//         }
 
-        res.status(200).send({
-            State: true,
-            Message: "get user success",
-            Data: result.data
-        })
+//         res.status(200).send({
+//             State: true,
+//             Message: "get user success",
+//             Data: result.data
+//         })
 
-    }
-    catch(e) {
-        next(e);
-    }    
-})
+//     }
+//     catch(e) {
+//         next(e);
+//     }    
+// })
 
 
 
