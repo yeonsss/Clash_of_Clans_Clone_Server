@@ -43,11 +43,7 @@ class UserController {
             const result = await UserModel.create({
                 id: id,
                 password: hashedPassword,
-<<<<<<< HEAD
-                userName : userName == "" || userName == null ? uuidv4() : userName,
-=======
                 userName: userName == "" || userName == null ? uuidv4() : userName,
->>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
             });
 
             await BModel.create({
@@ -78,13 +74,8 @@ class UserController {
                 monsterLevelMap: monsterLevelMap,
                 magicProdMaxCount: 10,
                 monsterProdMaxCount: 80,
-<<<<<<< HEAD
-                selectMonsterMap : selectMonsterMap,
-                selectMagicMap : selectMagicMap
-=======
                 selectMonsterMap: selectMonsterMap,
                 selectMagicMap: selectMagicMap
->>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
             })
 
             return {
@@ -139,16 +130,6 @@ class UserController {
             }, data);
 
             return {
-<<<<<<< HEAD
-                state : true,
-                message : "user update success"
-            }
-        }
-        catch(e) {
-            return {
-                state : false,
-                message : e.message
-=======
                 state: true,
                 message: "user update success"
             }
@@ -157,7 +138,6 @@ class UserController {
             return {
                 state: false,
                 message: e.message
->>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
             }
         }
     }
@@ -229,11 +209,7 @@ class UserController {
             const buildMap = {};
             const buildList = [];
 
-<<<<<<< HEAD
-            for(const b of myBuild) {
-=======
             for (const b of myBuild) {
->>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
                 if (b.name in buildMap == false) {
                     buildMap[b.name] = 1
                 }
@@ -256,15 +232,6 @@ class UserController {
             }
 
             const responseData = {
-<<<<<<< HEAD
-                Name: result.userName,
-                Credit: result.credit,
-                TierPoint: result.tierPoint,
-                Lv: result.lv,
-                HallLv: result.hallLv,
-                BuildMap : buildMap,
-                BuildList: buildList
-=======
                 name: result.userName,
                 credit: result.credit,
                 tierPoint: result.tierPoint,
@@ -272,7 +239,6 @@ class UserController {
                 hallLv: result.hallLv,
                 buildMap: buildMap,
                 buildList: buildList
->>>>>>> d9ed3e83cdd813a707eb514ce14266216c2414f5
             }
 
             return {
