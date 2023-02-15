@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { mongoose } from "../DB";
 import { UserController } from "../Controller/user/UserController";
 import BController from "../Controller/user/BController";
 import verifySession from "../middleware/verifySession";
@@ -34,16 +35,49 @@ UserRouter.post("/register", async (req, res, next) => {
 
 UserRouter.post("/login", async (req, res, next) => {
     try {
+        const sessionModel = mongoose.connection.db.collection('sessions');
+        if (!sessionModel) {
+            throw new Error("session connect error");
+        }
+
+        // console.log("prev session");
+        // console.log(req.session);
+        // console.log(req.sessionID);
+
+        if (req.sessionID) {
+            const session = await sessionModel.findOne({
+                _id : req.sessionID
+            })
+            console.log(session);
+            if (session != null) {
+                throw new Error("You are already logged in.");
+            }
+        }
+
         const { id, password } = req.body;
         const result = await UserController.Login(id, password);
-
         if (result.state == false) {
             throw new Error("Login Fail")
         }
 
+        const userSession = await sessionModel.findOne({
+            userId : result.userId
+        })
+        if (userSession != null) {
+            throw new Error("You are already logged in.")
+        }
+
         req.session.isLogined = true;
         req.session.userId = result.userId;
-        req.session.save();
+        req.session.save(async () => {
+            await sessionModel.updateOne({
+                _id : req.sessionID
+            }, {
+                $set: {
+                    "userId" : result.userId
+                }
+            })
+        });
 
         res.status(200).json({
             state: result.state,

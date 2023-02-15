@@ -18,7 +18,7 @@ class BController {
                 buildId: result._id,
                 name: result.name,
                 active: result.active,
-                stored: result.stored,
+                stored: parseInt(result.stored),
                 max: result.max,
                 isFull: result.stored >= result.max ? true : false
             }
