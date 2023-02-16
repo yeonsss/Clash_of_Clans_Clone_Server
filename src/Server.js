@@ -2,6 +2,7 @@ import express from 'express';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import http from 'http';
+import https from 'https'
 import RSchedule from './Task/RSchedule';
 import BSchedule from './Task/BSchedule';
 import BRouter from './Router/BRouter';
@@ -13,6 +14,12 @@ import session, { Session } from 'express-session';
 import MongoStore from 'connect-mongo';
 import TaskSchedule from './Task/TaskSchedule';
 import ArmyRouter from './Router/ArmyRouter';
+import fs from 'fs';
+
+const httpsOptions = {
+    key: fs.readFileSync('./private.pem'),
+    cert: fs.readFileSync('./public.pem')
+}
 
 dotenv.config();
 
@@ -53,10 +60,9 @@ app.use(ArmyRouter);
 app.use(errorMiddleware);
 
 // create HTTP Server use Express App -> for WebSocket
-const server = http.createServer(app);
+const server = https.createServer(httpsOptions, app);
 const io = new Server(server, {
     path: '/socket',
-    
 });
 
 const wrap = middleware => (socket, next) => middleware(socket.request, {}, next);
