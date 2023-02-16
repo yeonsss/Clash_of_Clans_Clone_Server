@@ -33,6 +33,28 @@ UserRouter.post("/register", async (req, res, next) => {
 
 })
 
+UserRouter.post("/session", verifySession, async (req, res, next) => {
+    try {
+
+        if (req.session.userId == null || req.session.userId == undefined) {
+            throw new Error("user is not logined")
+        }
+
+        res.status(200).send({
+            state: true,
+            message: "session verifySuccess",
+            userId: req.session.userId
+        })
+
+    }
+    catch (e) {
+        res.status(200).send({
+            state: false,
+            message: e.message,
+        })
+    }
+})
+
 UserRouter.post("/login", async (req, res, next) => {
     try {
         const sessionModel = mongoose.connection.db.collection('sessions');
@@ -46,7 +68,7 @@ UserRouter.post("/login", async (req, res, next) => {
 
         if (req.sessionID) {
             const session = await sessionModel.findOne({
-                _id : req.sessionID
+                _id: req.sessionID
             })
             console.log(session);
             if (session != null) {
@@ -61,7 +83,7 @@ UserRouter.post("/login", async (req, res, next) => {
         }
 
         const userSession = await sessionModel.findOne({
-            userId : result.userId
+            userId: result.userId
         })
         if (userSession != null) {
             throw new Error("You are already logged in.")
@@ -71,10 +93,10 @@ UserRouter.post("/login", async (req, res, next) => {
         req.session.userId = result.userId;
         req.session.save(async () => {
             await sessionModel.updateOne({
-                _id : req.sessionID
+                _id: req.sessionID
             }, {
                 $set: {
-                    "userId" : result.userId
+                    "userId": result.userId
                 }
             })
         });
