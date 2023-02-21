@@ -60,7 +60,8 @@ app.use(ArmyRouter);
 app.use(errorMiddleware);
 
 // create HTTP Server use Express App -> for WebSocket
-const server = https.createServer(httpsOptions, app);
+// const server = https.createServer(httpsOptions, app);
+const server = http.createServer(app);
 const io = new Server(server, {
     path: '/socket',
 });
@@ -70,6 +71,10 @@ const wrap = middleware => (socket, next) => middleware(socket.request, {}, next
 io.use(wrap(sessionMiddleware));
 
 io.use((socket, next) => {
+    console.log("handshake")
+    console.log(socket.handshake.headers.cookie);
+    console.log("request")
+    console.log(socket.request.sessionID);
     const session = socket.request.session;
     if (session && session.isLogined) {
         console.log("session logined")

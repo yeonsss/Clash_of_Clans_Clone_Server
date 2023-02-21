@@ -1,18 +1,20 @@
 import BController from "../Controller/user/BController.js";
 import TaskController from "../Controller/user/TaskController.js";
 import { io } from "../Server.js"
+import FindClientSocket from "../utils/FindClientSocket.js";
 
 io.on("connection", (socket) => {
 
-    console.log(socket.request.session);
+    // console.log(socket.request.session.userId);
+    socket.data.username = socket.request.session.userId
 
     socket.on("disconnect", async () => {
-        socket.request.session.destroy((err) => {
-            if (err != null) {
-                console.log("session destroy error");
-                console.log("error : ", err);
-            }
-        })
+        // socket.request.session.destroy((err) => {
+        //     if (err != null) {
+        //         console.log("session destroy error");
+        //         console.log("error : ", err);
+        //     }
+        // })
     })
 
     socket.on('GET_BUILD_STORAGE', async ({ buildId }) => {

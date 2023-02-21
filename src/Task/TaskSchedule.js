@@ -1,12 +1,145 @@
 import { ArmyModel, TaskModel, UserModel } from "../DB";
 import schedule from "node-schedule";
+import FindClientSocket from "../utils/FindClientSocket";
 import MonsterInfo from "../Data/MonsterInfo";
 import TaskController from "../Controller/user/TaskController";
+const { ToadScheduler, SimpleIntervalJob, Task } = require('toad-scheduler')
 
 export default async function() {
-    schedule.scheduleJob("*/1 * * * * *", async function () {
-        await updateTaskDone();
-	});
+    const scheduler = new ToadScheduler()
+
+    const task1 = new Task('TaskStartForServerOn', TaskStartForServerOn);
+    const job1 = new SimpleIntervalJob({ seconds: 1, }, task1)
+
+    const task2 = new Task('updateTaskDone', updateTaskDone);
+    const job2 = new SimpleIntervalJob({ seconds: 1, }, task2)
+
+    const task3 = new Task('FillSelectMap', FillSelectMap);
+    const job3 = new SimpleIntervalJob({ seconds: 1, }, task3)
+
+    scheduler.addSimpleIntervalJob(job1);
+    scheduler.addSimpleIntervalJob(job2);
+    scheduler.addSimpleIntervalJob(job3);
+}
+
+const FillSelectMap = async() => {
+    const armies = await ArmyModel.find();
+
+    armies.forEach(async(element) => {
+        if (element.selectMonsterCount < (element.monsterProdMaxCount / 2)) {
+            const tasks = await TaskModel.find({
+                type: "Monster",
+                isStart: false,
+                done: true,
+            })
+
+            for(const t of tasks) {
+                const capacity = MonsterInfo[t.name].SummonCapacity;
+                if (element.selectMonsterCount + capacity <= (element.monsterProdMaxCount / 2)) {
+
+                    await TaskModel.deleteOne({
+                        _id : t._id
+                    });
+    
+                    await ArmyModel.updateOne({
+                        userId : t.userId
+                    }, {
+                        $inc: {
+                            selectMonsterCount: capacity,
+                            [`selectMonsterMap.${t.name}`]: 1,
+                            [`monsterCountMap.${t.name}`]: 1,
+                        }
+                    })
+                }
+
+                const socket = await FindClientSocket(element.userId);
+
+                if (socket != null) {
+                    socket.emit('GET_TASK_COMPLETE', {
+                        state: true,
+                        message: "task complete",
+                        taskId: t._id
+                    })
+                }
+            }
+
+        }
+
+        if (element.selectMagicCount) {
+            const tasks = await TaskModel.find({
+                type: "Magic",
+                isStart: false,
+                done: true,
+            })
+
+            for(const t of tasks) {
+                const capacity = MagicInfo[t.name].SummonCapacity;
+                if (element.selectMagicCount + capacity <= (element.magicProdMaxCount / 2)) {
+
+                    await TaskModel.deleteOne({
+                        _id : element._id
+                    });
+    
+                    await ArmyModel.updateOne({
+                        userId : element.userId
+                    }, {
+                        $inc: {
+                            selectMagicCount: capacity,
+                            [`selectMagicMap.${element.name}`]: 1,
+                            [`magicCountMap.${element.name}`]: 1,
+                        }
+                    })
+                }
+
+                const socket = await FindClientSocket(element.userId);
+
+                if (socket != null) {
+                    socket.emit('GET_TASK_COMPLETE', {
+                        state: true,
+                        message: "task complete",
+                        taskId: t._id
+                    })
+                }
+            }
+        }
+    })
+}
+
+const TaskStartForServerOn = async() => {
+    const users = await UserModel.find();
+
+    users.forEach(async(element) => {
+        const id = element._id;
+        const startTaskCount = await TaskModel.countDocuments({
+            userId : id,
+            isStart : true
+        })
+
+        if (startTaskCount > 0) return;
+
+        const task = await TaskModel.findOne({
+            userId : id,
+            isStart: false,
+            done: false
+        }).sort({
+            createdAt : 1
+        });
+
+        if (task == null) return;
+
+        await TaskController.Start({userId: id, taskId: task._id});
+
+        const socket = await FindClientSocket(id);
+
+        if (socket != null) {
+            socket.emit('GET_TASK_START', {
+                state: true,
+                message: "task start",
+                taskId: task._id
+            })
+        }
+    })
+
 }
 
 const updateTaskDone = async() => {
@@ -17,76 +150,12 @@ const updateTaskDone = async() => {
     const date = new Date();
     tasks.forEach( async (element) => {
         if (element.doneTime.getTime() <= date.getTime()) {
-            console.log(element.type + " " + element.name)
-            const army = await ArmyModel.findOne({
-                userId : element.userId
+            await TaskModel.updateOne({
+                _id : element._id
+            }, {
+                isStart : false,
+                done: true
             });
-
-            if (element.type == "Monster") {
-                if (army.selectMonsterCount < (army.monsterProdMaxCount / 2)) {
-                    await TaskModel.deleteOne({
-                        _id : element._id
-                    });
-
-                    await ArmyModel.updateOne({
-                        userId : element.userId
-                    }, {
-                        $inc: {
-                            selectMonsterCount: MonsterInfo[element.name].SummonCapacity,
-                            [`selectMonsterMap.${element.name}`]: 1,
-                            [`monsterCountMap.${element.name}`]: 1,
-                        }
-                    })
-                }
-                else {
-                    await ArmyModel.updateOne({
-                        userId : element.userId
-                    }, {
-                        $inc: {
-                            [`monsterCountMap.${element.name}`]: 1,
-                        }
-                    })
-                }
-            }
-            else if (element.type == "Magic") {
-                if (army.selectMagicCount < (army.magicProdMaxCount / 2)) {
-                    await TaskModel.deleteOne({
-                        _id : element._id
-                    });
-
-                    await ArmyModel.updateOne({
-                        userId : element.userId
-                    }, {
-                        $inc: {
-                            selectMagicCount: MagicInfo[element.name].SummonCapacity,
-                            [`selectMagicMap.${element.name}`]: 1,
-                            [`magicCountMap.${element.name}`]: 1,
-                        }
-                    })
-                }
-                else {
-                    await ArmyModel.updateOne({
-                        userId : element.userId
-                    }, {
-                        $inc: {
-                            [`magicCountMap.${element.name}`]: 1,
-                        }
-                    })
-                }
-            }
-
-            const remainingTask = await TaskModel.findOne({
-                userId: element.userId,
-                isStart: false,
-                done: false
-            }).sort({
-                createdAt : 1
-            });
-
-            if (remainingTask != null) {
-                TaskController.Start({ userId: element.userId, taskId: remainingTask._id });
-            }
-
         }
     })
 }

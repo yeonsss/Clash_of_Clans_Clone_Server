@@ -57,12 +57,12 @@ class TaskController {
                 throw new Error("Create Task fail");
             }
 
-            const startTCount = await TaskModel.countDocuments({
-                isStart: true
-            })
-            if (startTCount < 1) {
-                await this.Start({userId, taskId: result._id})
-            }
+            // const startTCount = await TaskModel.countDocuments({
+            //     isStart: true
+            // })
+            // if (startTCount < 1) {
+            //     await this.Start({userId, taskId: result._id})
+            // }
 
             return {
                 state: true,
@@ -83,7 +83,7 @@ class TaskController {
             const tasks = await TaskModel.find({
                 userId: userId
             }).sort({
-                "createdAt": 1
+                createdAt: 1
             }).lean();
 
             if (tasks == null) {
@@ -201,6 +201,9 @@ class TaskController {
 
     static Start = async ({ userId, taskId }) => {
         try {
+
+            console.log(taskId)
+
             const workingTaskCount = await TaskModel.countDocuments({
                 userId: userId,
                 isStart: true

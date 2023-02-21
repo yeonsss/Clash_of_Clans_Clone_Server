@@ -8,7 +8,7 @@ import MatchSchema from "./Schemas/MatchSchema";
 mongoose.connect(process.env.MONGODB_URL)
     .then(() => {
         try {
-            mongoose.connection.db.collection('sessions').deleteMany({});    
+            // mongoose.connection.db.collection('sessions').deleteMany({});    
             console.log("session clear success..");
         }
         catch(e) {
