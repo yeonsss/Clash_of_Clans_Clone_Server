@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from 'uuid';
 import MonsterInfo from "../../Data/MonsterInfo";
 import { ArmyModel, BModel, UserModel } from "../../DB";
+import mongoose from "mongoose";
+const { ObjectId } = mongoose.Types;
 
 class UserController {
 
@@ -92,26 +94,55 @@ class UserController {
         }
     }
 
-    static GetUsers = async () => {
+    static GetRival = async ({ myId, targetId }) => {
         try {
-            const userList = await UserModel.find({}).limit(5);
+
+            var filter = [myId];
+            // if (ObjectId.isValid(targetId)) filter.push(targetId);
+
+            const userList = await UserModel.find({
+                _id: {
+                    $nin: filter
+                },
+            }).limit(5);
+
             if (userList.length == 0) {
                 throw new Error("no user");
             }
 
-            const result = [];
-            for (const u of userList) {
-                result.push({
-                    UserName: u.userName,
-                    UserId: u._id,
-                    TierPoint: u.tierPoint,
-                })
+            const randomIdx = Math.floor(Math.random() * userList.length);
+            const builds = await BModel.find({
+                userId: userList[randomIdx]._id
+            }).lean()
+
+            const buildMap = {};
+            const buildList = [];
+
+            for (const b of builds) {
+                if (b.name in buildMap == false) {
+                    buildMap[b.name] = 1
+                }
+                else {
+                    buildMap[b.name] += 1
+                }
+
+                if (b.active == false) {
+                    continue;
+                }
+                buildList.push(b)
             }
 
             return {
                 state: true,
-                message: "find userlist",
-                data: result
+                message: "find Rival",
+                rivalInfo: {
+                    userName: userList[randomIdx].userName,
+                    userId: userList[randomIdx]._id,
+                    credit: userList[randomIdx].credit,
+                    tierPoint: userList[randomIdx].tierPoint,
+                    buildMap: buildMap,
+                    buildList: buildList
+                }
             }
         }
         catch (e) {

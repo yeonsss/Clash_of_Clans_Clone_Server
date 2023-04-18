@@ -59,7 +59,7 @@ BRouter.get("/build/resource", verifySession, async (req, res, next) => {
         res.status(200).send({
             state: result.state,
             message: result.message,
-            credit: result.credit
+            amount: result.credit
         })
 
     } catch (e) {

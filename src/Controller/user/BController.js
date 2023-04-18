@@ -245,11 +245,12 @@ class BController {
             for (const b of builds) {
                 if (b.stored < 1) continue;
 
-                creditMount += b.stored
+                creditMount += parseInt(b.stored)
                 await BModel.updateOne({
                     _id: b._id
                 }, {
-                    stored: 0
+                    stored: 0,
+                    isFull: false
                 })
             }
 

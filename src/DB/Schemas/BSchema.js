@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 
 const BSchema = mongoose.Schema({
-    userId : {
+    userId: {
         type: mongoose.Types.ObjectId,
         ref: "USER",
-        required : true
+        required: true
     },
-    active : {
-        type : Boolean,
+    active: {
+        type: Boolean,
         required: true,
-        default : false,
+        default: false,
     },
-    name : {
+    name: {
         type: String,
         required: true
     },
@@ -20,33 +20,38 @@ const BSchema = mongoose.Schema({
         required: true,
         default: "Utility"
     },
-    posX : {
+    isFull: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    posX: {
         type: Number,
         default: 0,
         required: true
     },
-    posY : {
+    posY: {
         type: Number,
         default: 0,
         required: true
     },
-    stored : {
+    stored: {
         type: Number,
         default: 0,
         required: true
     },
-    lv : {
+    lv: {
         type: Number,
         required: true,
-        default : 1
+        default: 1
     },
     doneTime: {
-        type : Date,
+        type: Date,
         default: 0,
         required: true
     },
 }, {
-    timestamps: true 
+    timestamps: true
 });
 
 const BModel = mongoose.model("B", BSchema);

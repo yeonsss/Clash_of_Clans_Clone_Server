@@ -62,32 +62,35 @@ UserRouter.post("/login", async (req, res, next) => {
             throw new Error("session connect error");
         }
 
+        console.log("someone logined")
+
         // console.log("prev session");
         // console.log(req.session);
         // console.log(req.sessionID);
 
-        if (req.sessionID) {
-            const session = await sessionModel.findOne({
-                _id: req.sessionID
-            })
-            console.log(session);
-            if (session != null) {
-                throw new Error("You are already logged in.");
-            }
-        }
+        // if (req.sessionID) {
+        //     const session = await sessionModel.findOne({
+        //         _id: req.sessionID
+        //     })
+        //     console.log(session);
+        //     if (session != null) {
+        //         throw new Error("You are already logged in.");
+        //     }
+        // }
 
         const { id, password } = req.body;
+        console.log(id, password);
         const result = await UserController.Login(id, password);
         if (result.state == false) {
             throw new Error("Login Fail")
         }
 
-        const userSession = await sessionModel.findOne({
-            userId: result.userId
-        })
-        if (userSession != null) {
-            throw new Error("You are already logged in.")
-        }
+        // const userSession = await sessionModel.findOne({
+        //     userId: result.userId
+        // })
+        // if (userSession != null) {
+        //     throw new Error("You are already logged in.")
+        // }
 
         req.session.isLogined = true;
         req.session.userId = result.userId;
@@ -192,37 +195,44 @@ UserRouter.get("/user/build", verifySession, async (req, res, next) => {
 //     }    
 // })
 
-
-
 UserRouter.get("/rival", verifySession, async (req, res, next) => {
     try {
-        //이렇게 하지 말고 유저중 하나의 데이터를 가져오도록 하자.
-        // 티어가 비슷한
-        const result = [];
-
-        const users = await UserController.GetUsers();
-        if (users.state == false) {
-            throw new Error(users.message);
-        }
-
-        for (const us of users.data) {
-            const build = await BController.GetBuilds(us.UserId);
-            console.log(build.builds)
-            if (build.state == false) {
-                throw new Error(build.message);
-            }
-
-            result.push({
-                UserId: us.UserId,
-                TierPoint: us.TierPoint,
-                Builds: build.builds
-            })
+        const result = await UserController.GetRival({
+            myId: req.session.userId,
+            targetId: null
+        });
+        if (result.state == false) {
+            throw new Error(result.message);
         }
 
         res.status(200).send({
-            State: true,
-            Message: "get rival success",
-            Data: result
+            state: true,
+            message: result.message,
+            rivalInfo: result.rivalInfo
+        })
+    }
+    catch (e) {
+        next(e)
+    }
+})
+
+
+UserRouter.get("/rival/:id", verifySession, async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const result = await UserController.GetRival({
+            myId: req.session.userId,
+            targetId: id
+        });
+        if (result.state == false) {
+            throw new Error(result.message);
+        }
+
+        res.status(200).send({
+            state: true,
+            message: result.message,
+            rivalInfo: result.rivalInfo
         })
     }
     catch (e) {

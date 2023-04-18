@@ -15,6 +15,7 @@ import MongoStore from 'connect-mongo';
 import TaskSchedule from './Task/TaskSchedule';
 import ArmyRouter from './Router/ArmyRouter';
 import fs from 'fs';
+import BattleRouter from './Router/BattleRouter';
 
 const httpsOptions = {
     key: fs.readFileSync('./private.pem'),
@@ -36,7 +37,7 @@ const sessionMiddleware = session({
     resave: false, // false? 세션 데이터가 바뀌기 전까진 세션을 저장하지 않는다. (불필요하게 저장하며안되므로 false)
     saveUninitialized: false, // true?? 세션이 필요하기 전까진 세션을 구동하지 않는다. // 서버 부담
     store: MongoStore.create({
-        mongoUrl : process.env.MONGODB_URL
+        mongoUrl: process.env.MONGODB_URL
     })
 });
 
@@ -56,6 +57,7 @@ app.use(UserRouter);
 app.use(BRouter);
 app.use(TRouter);
 app.use(ArmyRouter);
+app.use(BattleRouter);
 
 app.use(errorMiddleware);
 
@@ -71,6 +73,7 @@ const wrap = middleware => (socket, next) => middleware(socket.request, {}, next
 io.use(wrap(sessionMiddleware));
 
 io.use((socket, next) => {
+    // console.log(socket);
     console.log("handshake")
     console.log(socket.handshake.headers.cookie);
     console.log("request")
@@ -83,7 +86,7 @@ io.use((socket, next) => {
         console.log("please login")
         next({
             state: false,
-            message : "not authorized. Please retry later"
+            message: "not authorized. Please retry later"
         });
     }
 });
@@ -96,9 +99,9 @@ io.use((socket, next) => {
 //   });
 
 setTimeout(() => {
-    RSchedule();    
+    RSchedule();
     BSchedule();
     TaskSchedule();
 }, 1000);
 
-export {app, server, io};
+export { app, server, io };

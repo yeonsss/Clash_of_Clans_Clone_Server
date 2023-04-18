@@ -14,8 +14,33 @@ class ArmyController {
             return {
                 state: true,
                 message: "GetMyArmy success",
-                armyInfo : result
+                armyInfo: result
             }
+        } catch (e) {
+            console.log(e.stack)
+            return {
+                state: false,
+                message: e.message
+            }
+        }
+    }
+
+    static SelectArmyCheck = async ({ userId }) => {
+        try {
+            const result = await ArmyModel.findOne({
+                userId
+            });
+            if (result == null) throw new Error("User ID is invalid.")
+
+            let check = false;
+            if (result.selectMonsterCount > 0) check = true;
+
+            return {
+                state: true,
+                message: "select army check",
+                possible: check
+            }
+
         } catch (e) {
             console.log(e.stack)
             return {
@@ -39,9 +64,9 @@ class ArmyController {
                 message: "GetMySelectArmy success",
                 selectInfo: {
                     monsterLevelMap: result.monsterLevelMap,
-                    magicLevelMap : result.magicLevelMap,
-                    selectMagicMap : result.selectMagicMap,
-                    selectMonsterMap : result.selectMonsterMap
+                    magicLevelMap: result.magicLevelMap,
+                    selectMagicMap: result.selectMagicMap,
+                    selectMonsterMap: result.selectMonsterMap
                 }
             }
         } catch (e) {
@@ -52,7 +77,7 @@ class ArmyController {
         }
     }
 
-    static UpgradeArmy = async({userId, name, type}) => {
+    static UpgradeArmy = async ({ userId, name, type }) => {
         try {
             let cost = 0;
             const army = await ArmyModel.findOne({ userId: userId });
@@ -68,7 +93,7 @@ class ArmyController {
             }
 
             const user = await UserModel.findOne({
-                _id : userId
+                _id: userId
             });
             if (user == null) throw new Error("user not found");
             if (user.credit - cost < 0) {
@@ -107,7 +132,7 @@ class ArmyController {
                 message: "level up complete"
             }
 
-        } catch(e) {
+        } catch (e) {
             return {
                 state: false,
                 message: e.message
@@ -115,7 +140,7 @@ class ArmyController {
         }
     }
 
-    static DeleteSelect = async({userId, name, type}) => {
+    static DeleteSelectAll = async ({ userId, type }) => {
         try {
             const army = await ArmyModel.findOne({ userId });
             if (army == null) {
@@ -123,7 +148,67 @@ class ArmyController {
             }
 
             if (type == "Monster") {
-                if (army.selectMonsterMap[name] < 1) {
+                const monsterMap = army.selectMonsterMap;
+                const monsterProdMap = army.monsterCountMap;
+
+                for (const name of monsterMap.keys()) {
+                    monsterMap.set(name, 0)
+                    monsterProdMap.set(name, 0);
+                }
+
+                await ArmyModel.updateOne({
+                    userId
+                }, {
+                    monsterProdCurCount: 0,
+                    monsterCountMap: monsterProdMap,
+                    selectMonsterCount: 0,
+                    selectMonsterMap: monsterMap
+                })
+            }
+            else if (type == "Magic") {
+                const magicMap = army.selectMagicMap;
+                const magicProdMap = army.magicCountMap;
+
+                for (const name of magicMap.keys()) {
+                    magicMap.set(name, 0)
+                    magicProdMap.set(name, 0)
+                }
+
+                await ArmyModel.updateOne({
+                    userId
+                }, {
+                    magicProdCurCount: 0,
+                    magicCountMap: magicProdMap,
+                    selectMagicCount: 0,
+                    selectMagicMap: magicMap
+                })
+            }
+            else {
+                throw new Error("type error!")
+            }
+
+            return {
+                state: true,
+                message: `DeleteArmy ${type} success`
+            }
+
+        } catch (e) {
+            return {
+                state: false,
+                message: e.message
+            }
+        }
+    }
+
+    static DeleteSelect = async ({ userId, name, type }) => {
+        try {
+            const army = await ArmyModel.findOne({ userId });
+            if (army == null) {
+                throw new Error("user id is invalid");
+            }
+
+            if (type == "Monster") {
+                if (army.selectMonsterMap.get(name) < 1) {
                     throw new Error("The number of these monsters is less than 1.")
                 }
 
@@ -131,24 +216,24 @@ class ArmyController {
                     userId
                 }, {
                     $inc: {
-                        monsterProdCurCount : -1 * MonsterInfo[name].SummonCapacity,
-                        selectMonsterCount : -1 * MonsterInfo[name].SummonCapacity,
+                        monsterProdCurCount: -1 * MonsterInfo[name].SummonCapacity,
+                        selectMonsterCount: -1 * MonsterInfo[name].SummonCapacity,
                         [`monsterCountMap.${name}`]: -1,
                         [`selectMonsterMap.${name}`]: -1,
                     }
                 })
             }
             else if (type == "Magic") {
-                if (army.selectMagicMap[name] < 1) {
+                if (army.selectMagicMap.get(name) < 1) {
                     throw new Error("The number of these Magic is less than 1.")
                 }
-    
+
                 await ArmyModel.updateOne({
                     userId
                 }, {
                     $inc: {
-                        magicProdCurCount : -1 * MagicInfo[name].SummonCapacity,
-                        selectMagicCount : -1 * MagicInfo[name].SummonCapacity,
+                        magicProdCurCount: -1 * MagicInfo[name].SummonCapacity,
+                        selectMagicCount: -1 * MagicInfo[name].SummonCapacity,
                         [`magicCountMap.${name}`]: -1,
                         [`selectMagicMap.${name}`]: -1,
                     }
