@@ -1,0 +1,22 @@
+{
+    "Name" : "TrainingStation",
+    "Type" : "Util",
+    "XSize" : 2,
+    "YSize" : 2,
+    "Description" : "",
+    "Levels" : [
+        {
+            "Hp" : 500,
+            "TownLevel" : 3,
+            "UpgradeCool" : 60,
+            "UpgradeCost" : 5000,
+            "PrefabPath" : "Building/Wall"
+        }, {
+            "Hp" : 550,
+            "TownLevel" : 4,
+            "UpgradeCool" : 3600,
+            "UpgradeCost" : 25000,
+            "PrefabPath" : "Building/Wall"
+        }
+      ]
+}

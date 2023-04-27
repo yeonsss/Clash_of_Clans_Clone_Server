@@ -17,11 +17,13 @@ const updateStored = async () => {
     });
 
     Bs.forEach(async (element) => {
-        const maxStore = BuildingInfo[element.name].Levels[element.lv - 1].StorageCapacity;
+        bInfo = BuildingInfo[element.name].Levels[element.lv - 1];
+        const maxStore = bInfo.MaxCapacity;
+        const OutputPerHour = bInfo.OutputPerHour;
 
         if (maxStore > element.stored) {
 
-            if (element.stored + (maxStore / 3600) >= maxStore) {
+            if (element.stored + (OutputPerHour / 3600) >= maxStore) {
                 const socket = await FindClientSocket(element.userId);
                 if (socket != null) {
                     socket.emit('GET_BUILD_STORAGE', {
@@ -37,7 +39,7 @@ const updateStored = async () => {
                 }, {
                     isFull: true,
                     $inc: {
-                        stored: (maxStore / 3600)
+                        stored: (OutputPerHour / 3600)
                     }
                 })
             }
@@ -46,7 +48,7 @@ const updateStored = async () => {
                     _id: element._id
                 }, {
                     $inc: {
-                        stored: (maxStore / 3600)
+                        stored: (OutputPerHour / 3600)
                     }
                 })
             }

@@ -1,0 +1,82 @@
+{
+    "Name" : "GoldMine",
+    "Type" : "Resource",
+    "XSize" : 3,
+    "YSize" : 3,
+    "Description" : "",
+    "Levels" : [
+        {
+            "Hp" : 400,
+            "TownLevel" : 1,
+            "UpgradeCool" : 10,
+            "UpgradeCost" : 150,
+            "MinCapacity" : 6,
+            "MaxCapacity" : 1000,
+            "OutputPerHour" : 200,
+            "PrefabPath" : "Building/GoldBuilding"
+        }, {
+            "Hp" : 440,
+            "TownLevel" : 1,
+            "UpgradeCool" : 60,
+            "UpgradeCost" : 300,
+            "MinCapacity" : 15,
+            "MaxCapacity" : 2000,
+            "OutputPerHour" : 400,
+            "PrefabPath" : "Building/GoldBuilding"
+        }, {
+            "Hp" : 480,
+            "TownLevel" : 2,
+            "UpgradeCool" : 240,
+            "UpgradeCost" : 700,
+            "MinCapacity" : 25,
+            "MaxCapacity" : 3000,
+            "OutputPerHour" : 600,
+            "PrefabPath" : "Building/GoldBuilding"
+        }, {
+            "Hp" : 520,
+            "TownLevel" : 2,
+            "UpgradeCool" : 600,
+            "UpgradeCost" : 1400,
+            "MinCapacity" : 40,
+            "MaxCapacity" : 5000,
+            "OutputPerHour" : 800,
+            "PrefabPath" : "Building/GoldBuilding"
+        }, {
+            "Hp" : 560,
+            "TownLevel" : 3,
+            "UpgradeCool" : 2400,
+            "UpgradeCost" : 3000,
+            "MinCapacity" : 60,
+            "MaxCapacity" : 10000,
+            "OutputPerHour" : 1000,
+            "PrefabPath" : "Building/GoldBuilding"
+        }, {
+            "Hp" : 600,
+            "TownLevel" : 3,
+            "UpgradeCool" : 10800,
+            "UpgradeCost" : 7000,
+            "MinCapacity" : 100,
+            "MaxCapacity" : 20000,
+            "OutputPerHour" : 1300,
+            "PrefabPath" : "Building/GoldBuilding"
+        }, {
+            "Hp" : 640,
+            "TownLevel" : 4,
+            "UpgradeCool" : 21600,
+            "UpgradeCost" : 14000,
+            "MinCapacity" : 160,
+            "MaxCapacity" : 30000,
+            "OutputPerHour" : 1600,
+            "PrefabPath" : "Building/GoldBuilding"
+        }, {
+            "Hp" : 680,
+            "TownLevel" : 4,
+            "UpgradeCool" : 28800,
+            "UpgradeCost" : 28000,
+            "MinCapacity" : 220,
+            "MaxCapacity" : 50000,
+            "OutputPerHour" : 1900,
+            "PrefabPath" : "Building/GoldBuilding"
+        }
+    ]
+  }

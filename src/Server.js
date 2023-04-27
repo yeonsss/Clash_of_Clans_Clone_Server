@@ -3,16 +3,17 @@ import { Server } from 'socket.io';
 import cors from 'cors';
 import http from 'http';
 import https from 'https'
-import RSchedule from './Task/RSchedule';
-import BSchedule from './Task/BSchedule';
+import RSchedule from './Schedule/ResourceStoreSchedule';
+import BSchedule from './Schedule/BuildActiveSchedule';
 import BRouter from './Router/BRouter';
 import TRouter from './Router/TRouter';
 import UserRouter from './Router/UserRouter';
+import DataRouter from './Router/DataRouter';
 import errorMiddleware from './middleware/errorMiddleware';
 import dotenv from "dotenv";
 import session, { Session } from 'express-session';
 import MongoStore from 'connect-mongo';
-import TaskSchedule from './Task/TaskSchedule';
+import TaskSchedule from './Schedule/UnitCreateTaskSchedule';
 import ArmyRouter from './Router/ArmyRouter';
 import fs from 'fs';
 import BattleRouter from './Router/BattleRouter';
@@ -53,11 +54,12 @@ app.get('/', async (req, res, next) => {
     res.send("hello session");
 })
 
-app.use(UserRouter);
-app.use(BRouter);
-app.use(TRouter);
-app.use(ArmyRouter);
-app.use(BattleRouter);
+app.use("/user", UserRouter);
+app.use("/build", BRouter);
+app.use("/task", TRouter);
+app.use("/army", ArmyRouter);
+app.use("/battle", BattleRouter); // 소켓으로 바꾸자.
+app.use("/data", DataRouter);
 
 app.use(errorMiddleware);
 

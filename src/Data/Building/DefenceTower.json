@@ -1,0 +1,41 @@
+{
+    "Name" : "DefenceTower",
+    "Type" : "Defence",
+    "XSize" : 2,
+    "YSize" : 2,
+    "Description" : "",
+    "AttackCooldown": 0.5,
+    "MinDistance" : 0,
+    "MaxDistance" : 8,
+    "Levels" : [
+        {
+            "Hp" : 385,
+            "Attack" : 5.5,
+            "TownLevel" : 1,
+            "UpgradeCool" : 60,
+            "UpgradeCost" : 1000,
+            "PrefabPath" : "Building/DefenceTower"
+        }, {
+            "Hp" : 420,
+            "Attack" : 7.5,
+            "TownLevel" : 2,
+            "UpgradeCool" : 900,
+            "UpgradeCost" : 2000,
+            "PrefabPath" : "Building/DefenceTower"
+        }, {
+            "Hp" : 460,
+            "Attack" : 9.5,
+            "TownLevel" : 3,
+            "UpgradeCool" : 2700,
+            "UpgradeCost" : 5000,
+            "PrefabPath" : "Building/DefenceTower"
+        }, {
+            "Hp" : 500,
+            "Attack" : 12.5,
+            "TownLevel" : 4,
+            "UpgradeCool" : 10800,
+            "UpgradeCost" : 20000,
+            "PrefabPath" : "Building/DefenceTower"
+        }
+    ]
+}

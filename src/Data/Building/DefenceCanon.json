@@ -1,0 +1,27 @@
+{
+    "Name" : "DefenceCanon",
+    "Type" : "Defence",
+    "XSize" : 3,
+    "YSize" : 3,
+    "Description" : "",
+    "AttackCooldown": 4,
+    "MinDistance" : 3,
+    "MaxDistance" : 12,
+    "Levels" : [
+        {
+            "Hp" : 400,
+            "Attack" : 20,
+            "TownLevel" : 3,
+            "UpgradeCool" : 10800,
+            "UpgradeCost" : 500,
+            "PrefabPath" : "Building/DefenceCanon"
+        }, {
+            "Hp" : 450,
+            "Attack" : 25,
+            "TownLevel" : 4,
+            "UpgradeCool" : 21600,
+            "UpgradeCost" : 25000,
+            "PrefabPath" : "Building/DefenceCanon"
+        }
+    ]
+}

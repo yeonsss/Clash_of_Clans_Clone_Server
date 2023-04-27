@@ -1,0 +1,86 @@
+{
+    "Name" : "Hall",
+    "Type" : "None",
+    "XSize" : 5,
+    "YSize" : 5,
+    "Description" : "",
+    "Levels" : [
+        {
+            "Hp" : 450,
+            "Master" : 1,
+            "UpgradeCool" : 0,
+            "UpgradeCost" : 0,
+            "PrefabPath" : "Building/Hall",
+            "LvCondition" : {
+                "Wall" : 25,
+                "DefenceTower" : 1,
+                "GoldMine" : 1
+            },
+            "BuildPossible" : {
+                "Wall" : 25,
+                "DefenceTower" : 1,
+                "DefenceCanon" : 0,
+                "TrainingStation" : 0,
+                "GoldMine" : 2
+            }
+        }, {
+            "Hp" : 1600,
+            "Master" : 1,
+            "UpgradeCool" : 10,
+            "UpgradeCost" : 1000,
+            "PrefabPath" : "Building/Hall",
+            "LvCondition" : {
+                "Wall" : 50,
+                "DefenceTower" : 2,
+                "GoldMine" : 2
+            },
+            "BuildPossible" : {
+                "Wall" : 50,
+                "DefenceTower" : 2,
+                "DefenceCanon" : 0,
+                "TrainingStation" : 0,
+                "GoldMine" : 2
+            }
+        }, {
+            "Hp" : 1850,
+            "Master" : 2,
+            "UpgradeCool" : 3600,
+            "UpgradeCost" : 4000,
+            "PrefabPath" : "Building/Hall",
+            "LvCondition" : {
+                "Wall" : 75,
+                "DefenceTower" : 3,
+                "DefenceCanon" : 1,
+                "TrainingStation" : 1,
+                "GoldMine" : 3
+            },
+            "BuildPossible" : {
+                "Wall" : 75,
+                "DefenceTower" : 3,
+                "DefenceCanon" : 1,
+                "TrainingStation" : 1,
+                "GoldMine" : 3
+            }
+        }, {
+            "Hp" : 2100,
+            "Master" : 2,
+            "UpgradeCool" : 10800,
+            "UpgradeCost" : 25000,
+            "PrefabPath" : "Building/Hall",
+            "LvCondition" : {
+                "Wall" : 100,
+                "DefenceTower" : 4,
+                "DefenceCanon" : 1,
+                "TrainingStation" : 1,
+                "GoldMine" : 4
+            },
+            "BuildPossible" : {
+                "Wall" : 100,
+                "DefenceTower" : 4,
+                "DefenceCanon" : 1,
+                "TrainingStation" : 1,
+                "GoldMine" : 4
+            }
+        }
+    ]
+  }

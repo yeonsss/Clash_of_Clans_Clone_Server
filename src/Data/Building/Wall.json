@@ -1,0 +1,30 @@
+{
+    "Name" : "Wall",
+    "Type" : "Defence",
+    "XSize" : 1,
+    "YSize" : 1,
+    "Description" : "",
+    "Levels" : [
+        {
+            "Hp" : 300,
+            "TownLevel" : 1,
+            "UpgradeCost" : 50,
+            "PrefabPath" : "Building/Wall"
+        }, {
+            "Hp" : 500,
+            "TownLevel" : 2,
+            "UpgradeCost" : 1000,
+            "PrefabPath" : "Building/Wall"
+        }, {
+            "Hp" : 700,
+            "TownLevel" : 3,
+            "UpgradeCost" : 5000,
+            "PrefabPath" : "Building/Wall"
+        }, {
+            "Hp" : 900,
+            "TownLevel" : 4,
+            "UpgradeCost" : 10000,
+            "PrefabPath" : "Building/Wall"
+        }
+    ]
+  }
